@@ -7,11 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 1. Tabela e Përdoruesve
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("USER")
-  createdAt DateTime @default(now())
+  id           Int       @id @default(autoincrement())
+  fullName     String
+  email        String    @unique
+  passwordHash String
+  role         String    @default("CLIENT") // CLIENT, STAFF, ADMIN
+  createdAt    DateTime  @default(now())
+  bookings     Booking[]
+}
+
+// 2. Tabela e Destinacioneve
+model Destination {
+  id          Int       @id @default(autoincrement())
+  name        String
+  country     String
+  description String?
+  imageUrl    String?
+  packages    Package[]
+}
+
+// 3. Tabela e Paketave Turistike (Ofertat)
+model Package {
+  id             Int         @id @default(autoincrement())
+  title          String
+  price          Decimal     @db.Decimal(10, 2)
+  startDate      DateTime
+  endDate        DateTime
+  availableSeats Int
+  destinationId  Int
+  destination    Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  bookings       Booking[]
+}
+
+// 4. Tabela e Rezervimeve
+model Booking {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  packageId   Int
+  bookingDate DateTime @default(now())
+  status      String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  totalPrice  Decimal  @db.Decimal(10, 2)
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  package     Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
 }
