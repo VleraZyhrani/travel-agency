@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,18 +8,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. Tabela e Përdoruesve
 model User {
   id           Int       @id @default(autoincrement())
   fullName     String
   email        String    @unique
   passwordHash String
-  role         String    @default("CLIENT") // CLIENT, STAFF, ADMIN
+  role         String    @default("CLIENT")
   createdAt    DateTime  @default(now())
   bookings     Booking[]
+  reviews      Review[]
 }
 
-// 2. Tabela e Destinacioneve
 model Destination {
   id          Int       @id @default(autoincrement())
   name        String
@@ -26,12 +26,14 @@ model Destination {
   description String?
   imageUrl    String?
   packages    Package[]
+  reviews     Review[]
 }
 
-// 3. Tabela e Paketave Turistike (Ofertat)
 model Package {
   id             Int         @id @default(autoincrement())
   title          String
+  description    String?
+  durationDays   Int?
   price          Decimal     @db.Decimal(10, 2)
   startDate      DateTime
   endDate        DateTime
@@ -39,17 +41,73 @@ model Package {
   destinationId  Int
   destination    Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
   bookings       Booking[]
+  reviews        Review[]
+  hotels         Hotel[]
+  flights        Flight[]
 }
 
-// 4. Tabela e Rezervimeve
 model Booking {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  packageId   Int
-  bookingDate DateTime @default(now())
-  status      String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  totalPrice  Decimal  @db.Decimal(10, 2)
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  package     Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  packageId      Int
+  bookingDate    DateTime @default(now())
+  status         String   @default("PENDING")
+  totalPrice     Decimal  @db.Decimal(10, 2)
+  numberOfPeople Int      @default(1)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  package        Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  payments       Payment[]
+}
+
+
+model Review {
+  id            Int          @id @default(autoincrement())
+  userId        Int
+  destinationId Int?
+  packageId     Int?
+  rating        Int
+  comment       String?      @db.NVarChar(2000)
+  createdAt     DateTime     @default(now())
+
+  user          User         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  destination   Destination? @relation(fields: [destinationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  package       Package?     @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  bookingId Int
+  amount    Decimal  @db.Decimal(10, 2)
+  method    String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Hotel {
+  id             Int     @id @default(autoincrement())
+  name           String
+  city           String
+  address        String?
+  nightlyPrice   Decimal @db.Decimal(10, 2)
+  availableRooms Int     @default(0)
+  packageId      Int
+
+  package        Package @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Flight {
+  id               Int      @id @default(autoincrement())
+  airline          String
+  flightNumber     String
+  departureAirport String
+  arrivalAirport   String
+  departureTime    DateTime
+  arrivalTime      DateTime
+  packageId        Int
+
+  package          Package  @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
