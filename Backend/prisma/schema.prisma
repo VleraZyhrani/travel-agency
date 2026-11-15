@@ -44,6 +44,9 @@ model Package {
   reviews        Review[]
   hotels         Hotel[]
   flights        Flight[]
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
 }
 
 model Booking {
@@ -110,4 +113,12 @@ model Flight {
   packageId        Int
 
   package          Package  @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  packages    Package[]
 }
