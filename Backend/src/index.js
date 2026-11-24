@@ -12,6 +12,9 @@ const paymentRoutes = require("./routers/paymentRoutes");
 const hotelRoutes = require("./routers/hotelRoutes");
 const flightRoutes = require("./routers/flightRoutes");
 const categoryRoutes = require("./routers/categoryRoutes");
+const authRoutes = require("./routers/authRoutes");
+
+
 
 const app = express();
 
@@ -31,6 +34,7 @@ app.use("/payments", paymentRoutes);
 app.use("/hotels", hotelRoutes);
 app.use("/flights", flightRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/auth", authRoutes);
 
 const PORT = process.env.PORT || 3000;
 

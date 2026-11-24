@@ -1,9 +1,10 @@
+const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
 const express = require("express");
 const router = express.Router();
 const prisma = require("../config/prisma");
 
 // GET all users
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, isAdmin, async (req, res) => {
   try {
     const users = await prisma.user.findMany();
     res.json(users);
@@ -26,7 +27,7 @@ router.post("/", async (req, res) => {
 });
 
 // PUT update user
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { fullName, email, role } = req.body;
@@ -41,7 +42,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE user
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await prisma.user.delete({

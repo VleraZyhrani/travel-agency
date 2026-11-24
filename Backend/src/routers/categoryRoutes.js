@@ -1,4 +1,4 @@
-
+const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
 const express = require("express");
 const router = express.Router();
 const prisma = require("../config/prisma");
@@ -32,7 +32,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, isAdmin, async (req, res) => {
   try {
     const { name, description } = req.body;
 
@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, isAdmin, async (req, res) => {
   try {
     const { name, description } = req.body;
 
@@ -78,7 +78,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, isAdmin, async (req, res) => {
   try {
     await prisma.category.delete({
       where: { id: parseInt(req.params.id) }

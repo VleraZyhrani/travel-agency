@@ -1,3 +1,4 @@
+const { verifyToken } = require("../middleware/authMiddleware");
 const express = require("express");
 const router = express.Router();
 const prisma = require("../config/prisma");
@@ -18,7 +19,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST create booking
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
     const { userId, packageId, totalPrice, status, numberOfPeople } = req.body;
     const newBooking = await prisma.booking.create({
@@ -37,7 +38,7 @@ router.post("/", async (req, res) => {
 });
 
 // PUT update booking
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { status, totalPrice, numberOfPeople } = req.body;
@@ -56,7 +57,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE booking
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     await prisma.booking.delete({

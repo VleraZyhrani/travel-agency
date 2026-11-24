@@ -1,3 +1,4 @@
+const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
 const express = require("express");
 const router = express.Router();
 const prisma = require("../config/prisma");
@@ -15,7 +16,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST create destination
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, isAdmin, async (req, res) => {
   try {
     const { name, country, description, imageUrl } = req.body;
     const newDestination = await prisma.destination.create({
@@ -28,7 +29,7 @@ router.post("/", async (req, res) => {
 });
 
 // PUT update destination
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, country, description, imageUrl } = req.body;
@@ -43,7 +44,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE destination
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await prisma.destination.delete({

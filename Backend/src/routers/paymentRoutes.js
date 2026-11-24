@@ -1,4 +1,5 @@
 
+const { verifyToken } = require("../middleware/authMiddleware");
 const express = require("express");
 const router = express.Router();
 const prisma = require("../config/prisma");
@@ -30,7 +31,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
     const { bookingId, amount, method, status } = req.body;
 
@@ -53,7 +54,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   try {
     const { amount, method, status } = req.body;
 
@@ -81,7 +82,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
   try {
     await prisma.payment.delete({
       where: { id: parseInt(req.params.id) }
